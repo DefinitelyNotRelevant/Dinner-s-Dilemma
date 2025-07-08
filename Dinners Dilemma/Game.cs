@@ -10,6 +10,7 @@ public static class Game
         {
             AnsiConsole.Clear();
         }
+        AnsiConsole.Clear();
         Program.Menu();
     }
     
@@ -22,8 +23,8 @@ public static class Game
         bool reactable = false;
         Random random = new Random();
         int turn = 1;
-        Move player = Move.Dust;
-        Move response = Move.Dp;
+        Move player = Move.Idle;
+        Move response = Move.Idle;
         while (!end)
         {
             // Get player move
@@ -59,8 +60,16 @@ public static class Game
             // Get opponent move
             if (!opponentStagger && reactable)
             {
-                response = Move.Dp;
-                AnsiConsole.WriteLine("PUNISHED");
+                if (response == Move.Block && random.Next(1,4) == 1)
+                {
+                    AnsiConsole.WriteLine("OVERHEAD");
+                    win = true;
+                }
+                else
+                {
+                    response = Move.Dp;
+                    AnsiConsole.WriteLine("PUNISHED");
+                }
                 end = true;
             }
             else if (!opponentStagger)
@@ -85,6 +94,7 @@ public static class Game
                         break;
                     
                     case < 16:
+                        response = Move.Block;
                         AnsiConsole.WriteLine("BLOCK");
                         break;
                     

@@ -10,6 +10,8 @@ public enum Move
     Dp,
     WildThrow,
     Run,
+    Block,
+    Idle
 }
 
 public static class MoveLogic
@@ -45,7 +47,7 @@ public static class MoveLogic
         { "Chemical Love", Move.ChemicalLove },
         { "Backdash", Move.BackDash },
     };
-
+    
     public static bool Compare(Move move1, Move move2)
     {
         if (BeatenBy[move1].Contains(move2))
