@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using SixLabors.ImageSharp.Processing;
+using Spectre.Console;
 
 namespace Dinners_Dilemma;
 
@@ -23,10 +24,13 @@ public static class Game
         bool reactable = false;
         Random random = new Random();
         int turn = 1;
-        Move player = Move.Idle;
-        Move response = Move.Idle;
+        Move player = Move.Left;
+        Move response = Move.Right;
         while (!end)
         {
+            // Print the board
+            PrintBoard(player, response, playerCommitted, opponentStagger);
+            
             // Get player move
             if (!playerCommitted)
             {
@@ -38,9 +42,8 @@ public static class Game
                 }
                 string playerName = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
-                        .Title("Turn " + turn)
+                        .Title("[bold darkred on white]  Turn " + turn + "  [/]")
                         .AddChoices(names));
-                AnsiConsole.WriteLine(playerName);
                 player = MoveLogic.GetData(playerName);
                 if (player == Move.Stroke || player == Move.Dust)
                 {
@@ -53,7 +56,7 @@ public static class Game
                 playerCommitted = false;
                 AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
-                        .Title("Turn " + turn)
+                        .Title("[bold darkred on white]  Turn " + turn + "  [/]")
                         .AddChoices("Commit"));
             }
 
@@ -62,90 +65,65 @@ public static class Game
             {
                 if (response == Move.Block && random.Next(1,4) == 1)
                 {
-                    AnsiConsole.WriteLine("OVERHEAD");
                     win = true;
                 }
                 else
                 {
-                    response = Move.Dp;
-                    AnsiConsole.WriteLine("PUNISHED");
+                    response = Move.WildThrow;
                 }
                 end = true;
             }
             else if (!opponentStagger)
             {
-                var roll = random.Next(0, 101); // Generates a random number between 1 and 100 (inclusive of 1, exclusive of 101)
-                AnsiConsole.WriteLine(roll);
-                
                 // Determine result
-                switch (roll) // Remove roll later
+                switch (random.Next(0, 101))
                 {
                     case < 6:
+                        response = Move.Right;
                         if (!playerCommitted && player != Move.BackDash)
                         {
                             end = true;
                             win = true;
-                            AnsiConsole.WriteLine("WIN");
-                        }
-                        else
-                        {
-                            AnsiConsole.WriteLine("WASTED");
                         }
                         break;
                     
                     case < 16:
                         response = Move.Block;
-                        AnsiConsole.WriteLine("BLOCK");
                         break;
                     
                     case < 26:
                         response = (Move) random.Next(5, 7);
-                        AnsiConsole.WriteLine(MoveLogic.GetDisplay(response));
                         if (MoveLogic.Compare(player, response) || playerCommitted)
                         {
                             end = true;
-                            AnsiConsole.WriteLine("LOST CLASH");
                         }
                         else if (player != Move.BackDash)
                         {
                             end = true;
                             win = true;
-                            AnsiConsole.WriteLine("WON CLASH");
                         }
                         else
                         {
                             opponentStagger = true;
-                            AnsiConsole.WriteLine("OPPONENT WHIFFED");
                         }
                         break;
                     
                     default:
                         response = MoveLogic.GetCounter(player);
-                        AnsiConsole.WriteLine(MoveLogic.GetDisplay(response));
                         if (response != Move.Run)
                         {
                             end = true;
-                            AnsiConsole.WriteLine("ATTACK CALLOUT");
-                        }
-                        else
-                        {
-                            AnsiConsole.WriteLine("BACKDASH CALLOUT");
-
                         }
                         break;
                 }
             }
             else
             {
+                response = Move.Right;
                 if (!playerCommitted && player != Move.BackDash)
                 {
                     end = true;
                     win = true;
-                    AnsiConsole.WriteLine("WIN");
-                }
-                else
-                {
-                    AnsiConsole.WriteLine("WASTED");
                 }
                 opponentStagger = false;
             }
@@ -154,8 +132,83 @@ public static class Game
             
             
             turn++;
+            AnsiConsole.Clear();
         }
+        PrintBoard(player, response, playerCommitted, opponentStagger, win);
         return Ending(win, player);
+    }
+    
+    private static void PrintBoard(Move ino, Move sol, bool prep, bool whiff)
+    {
+        // Get images
+        string inoAddress = MoveLogic.GetImage(ino);
+        string solAddress = MoveLogic.GetImage(sol);
+        if ((ino == Move.Dust || ino == Move.Stroke) && prep)
+        {
+            inoAddress += "_prep";
+        }
+        inoAddress += ".png";
+
+        if ((sol == Move.Dp || sol == Move.WildThrow) && whiff)
+        {
+            solAddress += "_whiff";
+        }
+        solAddress += ".png";
+        
+        // Create grid
+        Grid stage = new Grid();
+        Panel inoImage = new Panel(new CanvasImage(inoAddress).Mutate(ctx => ctx.Resize(80, 30))).Expand();
+        Panel solImage = new Panel(new CanvasImage(solAddress).Mutate(ctx => ctx.Resize(80, 30))).Expand();
+        stage.AddColumn();
+        stage.AddColumn();
+        stage.AddRow(inoImage, solImage).Centered();
+        
+        // Print grid
+        AnsiConsole.Write(stage);
+        AnsiConsole.Write(new Align(
+            new Markup("Ino : [bold]" + MoveLogic.GetDisplay(ino) + "[/]    Sol : [bold]" + MoveLogic.GetDisplay(sol) + "[/]\n"),
+            HorizontalAlignment.Center,
+            VerticalAlignment.Top
+            )
+        );
+    }
+
+    private static void PrintBoard(Move ino, Move sol, bool prep, bool whiff, bool win)
+    {
+        // Get images
+        string inoAddress = MoveLogic.GetImage(ino);
+        string solAddress = MoveLogic.GetImage(sol);
+        if ((ino == Move.Dust || ino == Move.Stroke) && prep)
+        {
+            inoAddress += "_prep";
+        }
+        inoAddress += ".png";
+
+        if ((sol == Move.Dp || sol == Move.WildThrow) && whiff)
+        {
+            solAddress += "_whiff";
+        }
+        solAddress += ".png";
+        
+        // Create grid
+        Grid stage = new Grid();
+        Panel inoImage = new Panel(new CanvasImage(inoAddress).Mutate(ctx => ctx.Resize(80, 30))).Expand();
+        Panel solImage = new Panel(new CanvasImage(solAddress).Mutate(ctx => ctx.Resize(80, 30))).Expand();
+        stage.AddColumn();
+        stage.AddColumn();
+        stage.AddRow(inoImage, solImage).Centered();
+        
+        // Print grid and ending
+        if (!win || ino != Move.Dust)
+        {
+            FlashAnimation(stage, win, solImage, inoImage, ino, sol);
+        }
+        else
+        {
+            DustAnimation();
+        }
+        
+        
     }
 
     private static bool Ending(bool win, Move move)
@@ -163,18 +216,30 @@ public static class Game
         switch (win, move) 
         {
             case (true, Move.Dust):
-                AnsiConsole.WriteLine("Truest Win");
+                AnsiConsole.Write(new Align(
+                    new Markup("[underline bold]Truest Win[/]\n"), 
+                    HorizontalAlignment.Center
+                    )
+                );
                 break;
             case (true, _):
-                AnsiConsole.WriteLine("Fakest Win");
+                AnsiConsole.Write(new Align(
+                        new Markup("[underline bold]Fakest Win[/]\n"), 
+                        HorizontalAlignment.Center
+                    )
+                );
                 break;
             default:
-                AnsiConsole.WriteLine("Fairest Loss");
+                AnsiConsole.Write(new Align(
+                        new Markup("[underline bold]Fairest Loss[/]\n"), 
+                        HorizontalAlignment.Center
+                    )
+                );
                 break;
         } 
         var prompt = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title("Can't stick around forever")
+                .Title("What are we supposed to do now?")
                 .AddChoices("Rematch", "Back"));
         if (prompt == "Rematch")
         {
@@ -182,4 +247,118 @@ public static class Game
         }
         return false;
     }
+
+    private static void FlashAnimation(Grid stage, bool win, Panel solImage, Panel inoImage, Move ino, Move sol)
+    {
+        AnsiConsole.Write(stage);
+        AnsiConsole.Write(new Align(
+                new Markup("Ino : [bold]" + MoveLogic.GetDisplay(ino) + "[/]    Sol : [bold]" + MoveLogic.GetDisplay(sol) + "[/]\n"),
+                HorizontalAlignment.Center,
+                VerticalAlignment.Top
+            )
+        );
+        Thread.Sleep(400);
+        AnsiConsole.Clear();
+        AnsiConsole.Write(
+            new FigletText("COUNTER")
+                .Centered()
+                .Color(Color.Red));
+        
+        Thread.Sleep(400);
+        AnsiConsole.Clear();
+        Panel ending;
+        if (win)
+        {
+            ending = new Panel(new CanvasImage("assets/ino_win.png").Mutate(ctx => ctx.Resize(160, 30))).Expand();
+            solImage = new Panel(new CanvasImage("assets/sol_death.png").Mutate(ctx => ctx.Resize(80, 30))).Expand();
+        }
+        else
+        {
+            ending = new Panel(new CanvasImage("assets/sol_win.png").Mutate(ctx => ctx.Resize(160, 30))).Expand();
+            inoImage = new Panel(new CanvasImage("assets/ino_death.png").Mutate(ctx => ctx.Resize(80, 30))).Expand();
+        }
+        stage = new Grid();
+        stage.AddColumn();
+        stage.AddColumn();
+        stage.AddRow(inoImage, solImage).Centered();
+        AnsiConsole.Write(stage);
+        AnsiConsole.Write(new Align(
+                new Markup("Ino : [bold]" + MoveLogic.GetDisplay(ino) + "[/]    Sol : [bold]" + MoveLogic.GetDisplay(sol) + "[/]\n"),
+                HorizontalAlignment.Center,
+                VerticalAlignment.Top
+            )
+        );
+        Thread.Sleep(400);
+        AnsiConsole.Clear();
+        AnsiConsole.Write(new Align(new Panel(ending).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
+    }
+
+    private static void DustAnimation()
+    {
+        Panel move = new Panel(new CanvasImage("assets/ino_5d.png").Mutate(ctx => ctx.Resize(160, 30))).Expand();
+        AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
+        Thread.Sleep(600);
+        AnsiConsole.Clear();
+        AnsiConsole.Write(
+            new FigletText("DUST ATTACK")
+                .LeftJustified()
+                .Color(Color.Orange1));
+        Thread.Sleep(600);
+        AnsiConsole.Write(
+            new FigletText("5D")
+                .Centered()
+                .Color(Color.Orange1));
+        Thread.Sleep(600);
+        AnsiConsole.Write(
+            new FigletText("HOMING JUMP")
+                .RightJustified()
+                .Color(Color.Orange1));
+        Thread.Sleep(600);
+        
+        
+        AnsiConsole.Clear();
+        move = new Panel(new CanvasImage("assets/ino_jh.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        AnsiConsole.Write(new Align(new Panel(move), HorizontalAlignment.Center, VerticalAlignment.Top));
+        Thread.Sleep(200);
+        AnsiConsole.Clear();
+        CanvasImage death = new CanvasImage("assets/sol_death.png").MaxWidth(20);
+        AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Right, VerticalAlignment.Middle));
+        Thread.Sleep(200);
+        AnsiConsole.Clear();
+        move = new Panel(new CanvasImage("assets/ino_j2.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
+        Thread.Sleep(200); 
+        AnsiConsole.Clear();
+        AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Right, VerticalAlignment.Middle));        Thread.Sleep(200);
+        AnsiConsole.Clear();
+        move = new Panel(new CanvasImage("assets/ino_jh.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
+        Thread.Sleep(200); 
+        AnsiConsole.Clear();
+        AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Right, VerticalAlignment.Middle));        Thread.Sleep(200);
+        AnsiConsole.Clear();
+        move = new Panel(new CanvasImage("assets/ino_jp.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
+        Thread.Sleep(200); 
+        AnsiConsole.Clear();
+        AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Right, VerticalAlignment.Middle));        Thread.Sleep(200);
+        AnsiConsole.Clear();
+        move = new Panel(new CanvasImage("assets/ino_jh.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
+        Thread.Sleep(200); 
+        AnsiConsole.Clear();
+        AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Right, VerticalAlignment.Middle));        Thread.Sleep(200);
+        AnsiConsole.Clear();
+        move = new Panel(new CanvasImage("assets/ino_dive_kick.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
+        Thread.Sleep(500); 
+        AnsiConsole.Clear();
+        death = new CanvasImage("assets/sol_death.png").MaxWidth(60).Mutate(ctx => ctx.Rotate(90).Resize(60, 30));
+        AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Center, VerticalAlignment.Middle));
+        Thread.Sleep(100); 
+        AnsiConsole.Clear();
+        Panel ending = new Panel(new CanvasImage("assets/ino_win.png").Mutate(ctx => ctx.Resize(160, 30))).Expand();
+        AnsiConsole.Write(new Align(new Panel(ending).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
+    }
+    
 }

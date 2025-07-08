@@ -145,7 +145,7 @@ public static class Program
     
     // I swear, there is no resource for character backdashes. Like aside from basic frames there is nothing.
     
-    // Uh, don't look to hard at the Wild Throw, ok buddy?
+    // Uh, don't look too hard at wild throw or dp, ok buddy?
     
     // Bet that at Cornell they take tons of Cornell notes.
     
@@ -159,4 +159,9 @@ public static class Program
     
     // Next season will have hover-dash, run into wild throw, all three jump arcs, burst, deflect shield, dead angle attack...
     
+    // For the record, this is not accurate. You can definitely whiff punish dp with 5[D] after backdash. I just can't do it.
+    
+    // You have to admit that Sol 5D at least somewhat defensive, right?
+    
+    // There are different endings, just so you know.
 }
