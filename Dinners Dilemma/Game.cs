@@ -7,12 +7,12 @@ public static class Game
 {
     public static void Start()
     {
+        AnsiConsole.Clear();
         while (Round())
         {
             AnsiConsole.Clear();
         }
         AnsiConsole.Clear();
-        Program.Menu();
     }
     
     private static bool Round()
@@ -157,8 +157,18 @@ public static class Game
         
         // Create grid
         Grid stage = new Grid();
-        Panel inoImage = new Panel(new CanvasImage(inoAddress).Mutate(ctx => ctx.Resize(80, 30))).Expand();
-        Panel solImage = new Panel(new CanvasImage(solAddress).Mutate(ctx => ctx.Resize(80, 30))).Expand();
+        Panel inoImage = new Panel(
+            new CanvasImage(inoAddress).Mutate(ctx => ctx.Resize(80, 60)))
+        {
+            Width = 80,
+            Height = 20
+        }.Expand();
+        Panel solImage = new Panel(
+            new CanvasImage(solAddress).Mutate(ctx => ctx.Resize(80, 60)))
+        {
+            Width = 80,
+            Height = 20
+        }.Expand();
         stage.AddColumn();
         stage.AddColumn();
         stage.AddRow(inoImage, solImage).Centered();
@@ -192,8 +202,18 @@ public static class Game
         
         // Create grid
         Grid stage = new Grid();
-        Panel inoImage = new Panel(new CanvasImage(inoAddress).Mutate(ctx => ctx.Resize(80, 30))).Expand();
-        Panel solImage = new Panel(new CanvasImage(solAddress).Mutate(ctx => ctx.Resize(80, 30))).Expand();
+        Panel inoImage = new Panel(
+            new CanvasImage(inoAddress).Mutate(ctx => ctx.Resize(80, 60)))
+        {
+            Width = 80,
+            Height = 20
+        }.Expand();
+        Panel solImage = new Panel(
+            new CanvasImage(solAddress).Mutate(ctx => ctx.Resize(80, 60)))
+        {
+            Width = 80,
+            Height = 20
+        }.Expand();
         stage.AddColumn();
         stage.AddColumn();
         stage.AddRow(inoImage, solImage).Centered();
@@ -260,22 +280,42 @@ public static class Game
         Thread.Sleep(400);
         AnsiConsole.Clear();
         AnsiConsole.Write(
-            new FigletText("COUNTER")
-                .Centered()
-                .Color(Color.Red));
-        
+            new Align(new FigletText("\n\nCOUNTER").Color(Color.Red),
+                HorizontalAlignment.Center,
+                VerticalAlignment.Middle
+                ));
         Thread.Sleep(400);
         AnsiConsole.Clear();
         Panel ending;
         if (win)
         {
-            ending = new Panel(new CanvasImage("assets/ino_win.png").Mutate(ctx => ctx.Resize(160, 30))).Expand();
-            solImage = new Panel(new CanvasImage("assets/sol_death.png").Mutate(ctx => ctx.Resize(80, 30))).Expand();
+            ending = new Panel(
+                new CanvasImage("assets/ino_win.png").Mutate(ctx => ctx.Resize(160, 60)))
+            {
+                Width = 160,
+                Height = 20
+            }.Expand();
+            solImage = new Panel(
+                new CanvasImage("assets/sol_death.png").Mutate(ctx => ctx.Resize(80, 60)))
+            {
+                Width = 80,
+                Height = 20
+            }.Expand();
         }
         else
         {
-            ending = new Panel(new CanvasImage("assets/sol_win.png").Mutate(ctx => ctx.Resize(160, 30))).Expand();
-            inoImage = new Panel(new CanvasImage("assets/ino_death.png").Mutate(ctx => ctx.Resize(80, 30))).Expand();
+            ending = new Panel(
+                new CanvasImage("assets/sol_win.png").Mutate(ctx => ctx.Resize(160, 60)))
+            {
+                Width = 160,
+                Height = 20
+            }.Expand();
+            inoImage = new Panel(
+                new CanvasImage("assets/ino_death.png").Mutate(ctx => ctx.Resize(80, 60)))
+            {
+                Width = 80,
+                Height = 20
+            }.Expand();
         }
         stage = new Grid();
         stage.AddColumn();
@@ -295,7 +335,12 @@ public static class Game
 
     private static void DustAnimation()
     {
-        Panel move = new Panel(new CanvasImage("assets/ino_5d.png").Mutate(ctx => ctx.Resize(160, 30))).Expand();
+        Panel move = new Panel(
+            new CanvasImage("assets/ino_5d.png").Mutate(ctx => ctx.Resize(160, 80)))
+        {
+            Width = 100,
+            Height = 20
+        }.Expand();
         AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
         Thread.Sleep(600);
         AnsiConsole.Clear();
@@ -317,7 +362,7 @@ public static class Game
         
         
         AnsiConsole.Clear();
-        move = new Panel(new CanvasImage("assets/ino_jh.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        move = new Panel(new CanvasImage("assets/ino_jh.png").Mutate(ctx => ctx.Resize(160, 50))).Expand();
         AnsiConsole.Write(new Align(new Panel(move), HorizontalAlignment.Center, VerticalAlignment.Top));
         Thread.Sleep(200);
         AnsiConsole.Clear();
@@ -325,40 +370,45 @@ public static class Game
         AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Right, VerticalAlignment.Middle));
         Thread.Sleep(200);
         AnsiConsole.Clear();
-        move = new Panel(new CanvasImage("assets/ino_j2.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        move = new Panel(new CanvasImage("assets/ino_j2.png").Mutate(ctx => ctx.Resize(160, 50))).Expand();
         AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
         Thread.Sleep(200); 
         AnsiConsole.Clear();
         AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Right, VerticalAlignment.Middle));        Thread.Sleep(200);
         AnsiConsole.Clear();
-        move = new Panel(new CanvasImage("assets/ino_jh.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        move = new Panel(new CanvasImage("assets/ino_jh.png").Mutate(ctx => ctx.Resize(160, 50))).Expand();
         AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
         Thread.Sleep(200); 
         AnsiConsole.Clear();
         AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Right, VerticalAlignment.Middle));        Thread.Sleep(200);
         AnsiConsole.Clear();
-        move = new Panel(new CanvasImage("assets/ino_jp.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        move = new Panel(new CanvasImage("assets/ino_jp.png").Mutate(ctx => ctx.Resize(160, 50))).Expand();
         AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
         Thread.Sleep(200); 
         AnsiConsole.Clear();
         AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Right, VerticalAlignment.Middle));        Thread.Sleep(200);
         AnsiConsole.Clear();
-        move = new Panel(new CanvasImage("assets/ino_jh.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        move = new Panel(new CanvasImage("assets/ino_jh.png").Mutate(ctx => ctx.Resize(160, 50))).Expand();
         AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
         Thread.Sleep(200); 
         AnsiConsole.Clear();
         AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Right, VerticalAlignment.Middle));        Thread.Sleep(200);
         AnsiConsole.Clear();
-        move = new Panel(new CanvasImage("assets/ino_dive_kick.png").Mutate(ctx => ctx.Resize(160, 40))).Expand();
+        move = new Panel(new CanvasImage("assets/ino_dive_kick.png").Mutate(ctx => ctx.Resize(160, 50))).Expand();
         AnsiConsole.Write(new Align(new Panel(move).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
         Thread.Sleep(500); 
         AnsiConsole.Clear();
-        death = new CanvasImage("assets/sol_death.png").MaxWidth(60).Mutate(ctx => ctx.Rotate(90).Resize(60, 30));
+        death = new CanvasImage("assets/sol_death.png").MaxWidth(60).Mutate(ctx => ctx.Rotate(90).Resize(60, 20));
         AnsiConsole.Write(new Align(new Panel(death), HorizontalAlignment.Center, VerticalAlignment.Middle));
         Thread.Sleep(100); 
         AnsiConsole.Clear();
-        Panel ending = new Panel(new CanvasImage("assets/ino_win.png").Mutate(ctx => ctx.Resize(160, 30))).Expand();
-        AnsiConsole.Write(new Align(new Panel(ending).Expand(), HorizontalAlignment.Center, VerticalAlignment.Top));
+        Panel ending = new Panel(
+            new CanvasImage("assets/ino_win.png").Mutate(ctx => ctx.Resize(160, 60)))
+        {
+            Width = 160,
+            Height = 20
+        }.Expand();
+        AnsiConsole.Write(new Align(new Panel(ending).Expand(), HorizontalAlignment.Center, VerticalAlignment.Bottom));
     }
     
 }

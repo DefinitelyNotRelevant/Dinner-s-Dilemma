@@ -1,30 +1,83 @@
-﻿// See https://aka.ms/new-console-template for more information
-namespace Dinners_Dilemma;
+﻿namespace Dinners_Dilemma;
 
 using SixLabors.ImageSharp.Processing;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
+public enum MenuAction
+{
+    Menu,
+    Extras,
+    Quotes,
+    Quit
+}
+
 public static class Program
 {
-    public static void Main(string[] args)
+    public static void Main()
     {
-        //AnsiConsole.Markup("[underline red]Hello[/] World!\n");
-        //Load();
-        Menu();
+        Load();
+        MenuAction next = Menu();
+        while (next != MenuAction.Quit)
+        {
+            switch (next)
+            {
+                case MenuAction.Menu:
+                    next = Menu();
+                    break;
+                case MenuAction.Extras:
+                    next = Extras();
+                    break;
+                case MenuAction.Quotes:
+                    next = Quotes();
+                    break;
+            }
+        }
+
+        Quit();
     }
 
     private static void Load()
     {
-        var panel = new Panel("\"The Dunning-Kruger effect is a cognitive bias where people overestimate their knowledge or ability in a specific area. " +
-                              "It occurs because a lack of self-awareness prevents them from accurately assessing their own skills. " +
-                              "Essentially, the more incompetent someone is, the less aware they are of their own incompetence\" - Microsoft Copilot\n");
-        panel.Border = BoxBorder.Rounded;
-        panel.Expand = true;
-        AnsiConsole.Write(panel);
+        AnsiConsole.MarkupLine("[green]Tooltip : " + Tooltips.GetRandomQuote() + "[/]");
+        AnsiConsole.Progress()
+            .AutoRefresh(true)
+            .AutoClear(false)
+            .HideCompleted(false)
+            .Columns(new ProgressColumn[]
+            {
+                new TaskDescriptionColumn(),
+                new ProgressBarColumn(),
+                new PercentageColumn(),
+                new SpinnerColumn()
+            })
+            .Start(ctx =>
+            {
+                var load = ctx.AddTask("Initializing system and prepping assets...");
+                while (!load.IsFinished)
+                {
+                    load.Increment(1.0);
+                    Thread.Sleep(5);
+                }
+                var connect = ctx.AddTask("Connecting to server to pad time...");
+                while (!connect.IsFinished)
+                {
+                    connect.Increment(1.0);
+                    Thread.Sleep(25);
+                }
+            });
+        AnsiConsole.MarkupLine("[bold green]Ready![/]");
+        AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("")
+                .PageSize(10)
+                .AddChoices(new[] {
+                    "Continue",
+                }));
+        AnsiConsole.Clear();
     }
     
-    public static void Menu()
+    public static MenuAction Menu()
     {
         var rule = new Rule("[red]Dinner's Dilemma[/]");
         AnsiConsole.Write(rule);
@@ -33,51 +86,99 @@ public static class Program
                 .Title("[white]\nMake The[/] [red]Move[/]")
                 .PageSize(10)
                 .AddChoices(new[] {
-                    "Start", "Language", "Extras", "Exit",
+                    "Start", "Extras", "Exit",
                 }));
 
         if (prompt == "Extras")           
         {
-            Extras();
-        } else if (prompt == "Exit")
-        {
-            Quit();
-        } else if (prompt == "Start")
-        {
-            Game.Start();
+            return MenuAction.Extras;
         }
+        if (prompt == "Exit")
+        {
+            return MenuAction.Quit;
+        }
+        Game.Start();
+        return MenuAction.Menu;
     }
 
-    private static void Extras()
+    private static MenuAction Extras()
     {
         var image = new CanvasImage("assets/elphet.png");
-        image.Mutate(ctx => ctx.Resize(75, 20)); 
+        image.Mutate(ctx => ctx.Resize(60, 20)); 
         var layout = new Layout("Root")
             .SplitRows(
                 new Layout("Columns").Size(10)
                     .SplitColumns(
                         new Layout("Choices"),
-                        new Layout("Image").Size(75)));
+                        new Layout("Image").Size(60)));
         
         layout["Image"].Update(new Panel(image).Expand());
         layout["Choices"].Update(
             new Panel(
                     Align.Left(
-                        new Markup("All assets from Guilty Gear Strive and Dustloop.\n" +
-                                   "References to Death Stranding, Limbus Company, Rango, Cornell University"), 
+                        new Markup("By DefinitelyNotRelevant with .NET 8 and Spectre.Console.\n" + 
+                                   "All assets from Guilty Gear Strive and sourced from Dustloop Wiki.\n" +
+                                   "([link]https://www.dustloop.com/w/Main_Page[/])\n" +
+                                   "References Death Stranding, Limbus Company, Rango, and Cornell University."), 
                         VerticalAlignment.Top))
                 .Expand());
         var panel = new Panel(layout) { Height = 12 };
         panel.NoBorder();
         AnsiConsole.Write(panel);
         
-        AnsiConsole.Prompt(
+        var prompt= AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title("Can't stick around forever")
-                .AddChoices("Back"));
+                .Title("[hotpink]Rub-a-dub-dub (Rub, rub-a-dub) Yeah yeah[/]")
+                .AddChoices("Tooltips", "Back"));
         AnsiConsole.Clear();
-        Menu();
-        
+        if (prompt == "Tooltips")
+        {
+            return MenuAction.Quotes;
+        }
+        else
+        {
+            return MenuAction.Menu;       
+        }
+    }
+
+    private static MenuAction Quotes()
+    {
+        bool finished = false; 
+        bool firstPage = true;
+        string prompt;
+        while (!finished)
+        {
+            if (firstPage)
+            {
+                Tooltips.PrintFirstHalf();
+                prompt = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Can't stick around forever")
+                        .AddChoices("Next Page", "Leave"));
+            }
+            else
+            {
+                Tooltips.PrintSecondHalf();
+                prompt = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Can't stick around forever")
+                        .AddChoices("Previous Page", "Back"));
+            }
+
+            if (prompt == "Next Page")
+            {
+                firstPage = false;
+            }
+            else if (prompt == "Previous Page")
+            {
+                firstPage = true;
+            } else
+            {
+                finished = true;
+            }
+            AnsiConsole.Clear();
+        }
+        return MenuAction.Extras;
     }
 
     private static void Quit()
