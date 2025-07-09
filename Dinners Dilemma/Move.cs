@@ -42,7 +42,7 @@ public static class MoveLogic
         { Move.Right, "Idle" },
     };
     
-    // Holy that's kind of weird. Jetbrains AI Assistant just became free and I tried it. Also a terrible implementation.
+    // Jetbrains AI Assistant just became free, and I tried it. Also, a terrible implementation.
     private static readonly Dictionary<string, Move> Data = new()
     {
         { "Charged Dust", Move.Dust },

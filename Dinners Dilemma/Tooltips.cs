@@ -23,9 +23,9 @@ public static class Tooltips
         "So you know when you rack your brain but all you can think about is one thing? That's why dust becomes the only option.",
         "Ha... A certain subject has made me a loser...",
         "Did you know there's a secret way to exit to the main menu in the middle of a game?",
-        "Next season will have hover-dash, run into wild throw, all three jump arcs, burst, deflect shield, dead angle attack...",
-        "For the record, this is not accurate. You can definitely whiff punish dp with 5[[D]]" +
-        " after backdash. I just can't do it.",
+        "Next season will have hover-dash, run into Wild Throw, all three jump arcs, Burst, Deflect Shield, Dead Angle Attack...",
+        "For the record, this is not accurate. You will die if you backdash and Sol is running at you.",
+        "Did you know the reason you can't punish whiffed Volcanic Viper with 5[[D]] is because I can't?",
         "You have to admit that Sol 5D looks at least somewhat defensive, right?",
         "There are different endings, just so you know."
     ];

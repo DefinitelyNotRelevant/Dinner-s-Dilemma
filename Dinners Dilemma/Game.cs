@@ -277,7 +277,10 @@ public static class Game
                 VerticalAlignment.Top
             )
         );
-        Thread.Sleep(400);
+        AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[bold darkred on white]  You already see it  [/]")
+                .AddChoices("Commit"));
         AnsiConsole.Clear();
         AnsiConsole.Write(
             new Align(new FigletText("\n\nCOUNTER").Color(Color.Red),
